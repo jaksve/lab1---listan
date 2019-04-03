@@ -3,7 +3,8 @@
 
 #include <initializer_list>
 #include <memory>
-class List_Iterator;
+#include <iterator>
+
 class List
 {
 public:
@@ -34,9 +35,10 @@ public:
     void swap(List & other) noexcept;
 
     friend class List_Iterator;
-
+    class List_Iterator;
     List_Iterator begin() const;
     List_Iterator end() const;
+    
 private:
     struct Node
     {
@@ -55,21 +57,28 @@ private:
 };
 
 
-class List_Iterator
+class List::List_Iterator
 {
-public:
-    List_Iterator operator ++(int);
-    List_Iterator& operator ++();
+ public:
+  using value_type = int;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using difference_type = int;
+  
+  List_Iterator operator ++(int);
+  List_Iterator& operator ++();
+  List_Iterator& operator --();
 
-    bool operator !=(List_Iterator const& rhs)const;
-    List_Iterator (List_Iterator && arg);
-    List_Iterator (List_Iterator const& arg);
-    int& operator *();
-    friend class List;
-private:
-    List_Iterator(List::Node & arg);
-    List::Node* memb;
-
+  int operator - (List_Iterator const& rhs)const;
+  bool operator !=(List_Iterator const& rhs)const;
+  List_Iterator (List_Iterator && arg);
+  List_Iterator (List_Iterator const& arg);
+  int& operator *();
+  friend class List;
+  List_Iterator(List::Node & arg);
+  
+ private:
+  List::Node* memb;
+  
 };
 
 

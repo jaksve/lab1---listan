@@ -120,27 +120,27 @@ List & List::operator=(List && rhs)& noexcept
     return *this;
 }
 
-List_Iterator List::begin()const
+List::List_Iterator List::begin()const
 {
 
     return List_Iterator(*(head->next));
 }
 
-List_Iterator List::end()const
+List::List_Iterator List::end()const
 {
     return List_Iterator(*tail);
 }
 
-List_Iterator:: List_Iterator( List::Node &arg):memb{&arg} {}
+List::List_Iterator:: List_Iterator( List::Node &arg):memb{&arg} {}
 
-List_Iterator:: List_Iterator (List_Iterator && arg):memb{arg.memb}
+List::List_Iterator:: List_Iterator (List_Iterator && arg):memb{arg.memb}
 {
 }
 
-List_Iterator::List_Iterator(List_Iterator const& arg): memb{arg.memb}
+List::List_Iterator::List_Iterator(List_Iterator const& arg): memb{arg.memb}
 {}
 
-List_Iterator& List_Iterator::operator++()
+List::List_Iterator& List::List_Iterator::operator++()
 {
   if( memb -> next != nullptr)
   {
@@ -149,19 +149,36 @@ List_Iterator& List_Iterator::operator++()
   return *this;
 }
 
-List_Iterator List_Iterator::operator ++ (int)
+List::List_Iterator List::List_Iterator::operator ++ (int)
 {
     List_Iterator temp(*memb);
     ++*this;
     return temp;
 }
 
-int& List_Iterator::operator*()
+List::List_Iterator& List::List_Iterator::operator -- ()
+{
+  if(memb->prev->prev)
+    {
+      memb = memb->prev;
+    }
+  return *this;
+}
+
+
+int List::List_Iterator::operator - (List_Iterator const& rhs)const
+{
+  return (memb->value - rhs.memb->value);
+}
+
+
+int& List::List_Iterator::operator*()
 {
     return memb->value;
 }
 
-bool List_Iterator:: operator !=(List_Iterator const& rhs)const
+bool List::List_Iterator:: operator !=(List_Iterator const& rhs)const
 {
     return memb != rhs.memb;
 }
+

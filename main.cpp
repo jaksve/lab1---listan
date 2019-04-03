@@ -38,9 +38,12 @@ l2.swap(lst);
 CHECK(l2.at(0) == 1);
 CHECK(lst.at(0) == 15);
 
-for(auto it = lst.begin();it != lst.end();++it)
+for(auto it = lst.begin(); it != lst.end();++it)
 {
     std::cout<< *it <<std::endl;
 }
 
+
+
+ 
 }
