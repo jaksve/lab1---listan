@@ -5,82 +5,146 @@
 #include <memory>
 #include <iterator>
 
-class List
+namespace listerator {
+    template<typename T>
+    class List {
+    public:
+        using value_type = T;
+
+        List();
+
+        List(List const &);
+
+        List(List &&) noexcept;
+
+        List(std::initializer_list<value_type>);
+
+        List &operator=(List const &) &;
+
+        List &operator=(List &&) & noexcept;
+
+        void push_front(value_type);
+
+        void push_back(value_type);
+
+        value_type back() const noexcept;
+
+        value_type &back() noexcept;
+
+        value_type front() const noexcept;
+
+        value_type &front() noexcept;
+
+        value_type &at(int idx);
+
+        value_type const &at(int idx) const;
+
+        int size() const noexcept;
+
+        bool empty() const noexcept;
+
+        void swap(List &other) noexcept;
+
+        friend class List_Iterator;
+
+    private:
+        struct Node;
+    public:
+        class List_Iterator {
+        public:
+            using value_type = T;
+            using iterator_category = std::bidirectional_iterator_tag;
+            using difference_type = int;
+            using pointer = List<T>::Node *;
+            using reference = T &;
+
+            auto operator++(int);
+
+            auto &operator++();
+
+            auto &operator--();
+
+            auto operator-(List_Iterator const &rhs) const;
+
+            bool operator!=(List_Iterator const &rhs) const;
+
+            bool operator==(List_Iterator const &rhs) const;
+
+            List_Iterator(List_Iterator &&arg);
+
+            List_Iterator(List_Iterator const &arg);
+
+            value_type &operator*();
+
+            friend class List;
+
+            List_Iterator(List<T>::Node &arg);
+
+        private:
+            pointer memb;
+
+        };
+
+        auto begin() const;
+
+        auto end() const;
+
+    private:
+        struct Node {
+            using value_type = T;
+
+            Node() = default;
+
+            Node(const Node &) = delete;
+
+            Node &operator=(const Node &) = delete;
+
+            Node(value_type v, Node *p, std::unique_ptr<Node> n)
+                    : value{v}, prev{p}, next{std::move(n)} {}
+
+            value_type value{};
+            Node *prev{};
+            std::unique_ptr<Node> next{};
+        };
+
+        std::unique_ptr<Node> head{};
+        Node *tail{};
+        int sz{};
+    };
+
+/*
+class List<T>::List_Iterator
 {
 public:
-    List();
-    List(List const &);
+    using value_type = T;
+    using iterator_category = std::bidirectional_iterator_tag;
+    using difference_type = int;
+    using pointer = Node*;
+    using reference = T&;
 
-    List(List &&) noexcept;
-    List(std::initializer_list<int>);
+    List_Iterator operator ++(int);
+    List_Iterator& operator ++();
+    List_Iterator& operator --();
 
-    List & operator=(List const &)&;
-    List & operator=(List &&)& noexcept;
+    difference_type operator - (List_Iterator const& rhs)const;
 
-    void push_front(int);
-    void push_back(int);
+    bool operator != (List_Iterator const& rhs)const;
+    bool operator == (List_Iterator const& rhs)const;
 
-    int back() const noexcept;
-    int & back() noexcept;
+    List_Iterator (List_Iterator && arg);
+    List_Iterator (List_Iterator const& arg);
+    value_type & operator *();
+    friend class List;
+    List_Iterator(List::Node & arg);
 
-    int front() const noexcept;
-    int & front() noexcept;
-
-    int & at(int idx);
-    int const & at(int idx) const;
-
-    int size() const noexcept;
-    bool empty() const noexcept;
-
-    void swap(List & other) noexcept;
-
-    friend class List_Iterator;
-    class List_Iterator;
-    List_Iterator begin() const;
-    List_Iterator end() const;
-    
 private:
-    struct Node
-    {
-        Node() = default;
-        Node(const Node&) = delete;
-        Node& operator=(const Node&) = delete;
-        Node(int v, Node* p, std::unique_ptr<Node> n)
-                : value{v}, prev{p}, next{std::move(n)} {}
-        int value {};
-        Node* prev{};
-        std::unique_ptr<Node> next{};
-    };
-    std::unique_ptr<Node> head{};
-    Node* tail{};
-    int sz {};
+    pointer memb;
+
 };
+*/
 
+#include "List.cc"
 
-class List::List_Iterator
-{
- public:
-  using value_type = int;
-  using iterator_category = std::bidirectional_iterator_tag;
-  using difference_type = int;
-  
-  List_Iterator operator ++(int);
-  List_Iterator& operator ++();
-  List_Iterator& operator --();
-
-  int operator - (List_Iterator const& rhs)const;
-  bool operator !=(List_Iterator const& rhs)const;
-  List_Iterator (List_Iterator && arg);
-  List_Iterator (List_Iterator const& arg);
-  int& operator *();
-  friend class List;
-  List_Iterator(List::Node & arg);
-  
- private:
-  List::Node* memb;
-  
-};
-
-
+}
 
 #endif //LIST_H

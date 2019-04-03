@@ -3,16 +3,16 @@
 #include <utility>
 #include <stdexcept>
 
-
-List::List()
+template <typename T>
+List<T>::List()
         : head{ std::make_unique<Node>()} , tail{}, sz{0}
 {
-    head->next = std::make_unique<Node>(0, head.get(), nullptr);
+    head->next = std::make_unique<Node>(T{}, head.get(), nullptr);
     tail = head->next.get();
 }
 
-
-List::List(List const & other)
+template <typename T>
+List<T>::List(List<T> const & other)
         : List{}
 {
     for (Node* tmp {other.head->next.get()}; tmp != other.tail ; )
@@ -22,14 +22,14 @@ List::List(List const & other)
     }
 }
 
-
-List::List(List && tmp) noexcept
+template <typename T>
+List<T>::List(List && tmp) noexcept
         :List{}
 {
     swap(tmp);
 }
-
-List::List(std::initializer_list<int> lst)
+template <typename T>
+List<T>::List(std::initializer_list<T> lst)
         : List{}
 {
     for ( auto val : lst )
@@ -37,8 +37,8 @@ List::List(std::initializer_list<int> lst)
         push_back(val);
     }
 }
-
-void List::push_front(int value)
+template <typename T>
+void List<T>::push_front(T value)
 {
     Node* old_first  {head->next.get()};
     head->next = std::make_unique<Node>(value, head.get(), std::move(head->next));
@@ -46,43 +46,53 @@ void List::push_front(int value)
     ++sz;
 }
 
-void List::push_back(int value)
+template <typename T>
+void List<T>::push_back(T value)
 {
     Node* old_last { tail->prev };
     old_last->next = std::make_unique<Node>(value, old_last, std::move(old_last->next));
     tail->prev = old_last->next.get();
     ++sz;
-
 }
 
-bool List::empty() const noexcept
+template <typename T>
+bool List<T>::empty() const noexcept
 {
     return head->next.get() == tail;
 }
 
-int List::back() const noexcept
-{
-    return tail->prev->value;
-}
-int & List::back() noexcept
+template <typename T>
+T List<T>::back() const noexcept
 {
     return tail->prev->value;
 }
 
-int List::front() const noexcept
+template <typename T>
+T & List<T>::back() noexcept
 {
-    return head->next->value;
+    return tail->prev->value;
 }
-int & List::front() noexcept
+
+template <typename T>
+T List<T>::front() const noexcept
 {
     return head->next->value;
 }
 
-int & List::at(int idx)
+template <typename T>
+T & List<T>::front() noexcept
 {
-    return const_cast<int &>(static_cast<List const *>(this)->at(idx));
+    return head->next->value;
 }
-int const & List::at(int idx) const
+
+template <typename T>
+T & List<T>::at(int idx)
+{
+    return const_cast<T &>(static_cast<List const *>(this)->at(idx));
+}
+
+template <typename T>
+T const & List<T>::at(int idx) const
 {
     if (idx >= sz)
         throw std::out_of_range{"Index not found"};
@@ -95,12 +105,14 @@ int const & List::at(int idx) const
     return tmp->value;
 }
 
-int List::size() const noexcept
+template <typename T>
+int List<T>::size() const noexcept
 {
     return sz;
 }
 
-void List::swap(List & other) noexcept
+template <typename T>
+void List<T>::swap(List & other) noexcept
 {
     using std::swap;
     swap(head, other.head);
@@ -108,77 +120,116 @@ void List::swap(List & other) noexcept
     swap(sz, other.sz);
 }
 
-List & List::operator=(List const & rhs) &
+template <typename T>
+List<T> & List<T>::operator=(List const & rhs) &
 {
     List{rhs}.swap(*this);
     return *this;
 }
 
-List & List::operator=(List && rhs)& noexcept
+template <typename T>
+List<T> & List<T>::operator=(List && rhs)& noexcept
 {
     swap(rhs);
     return *this;
 }
 
-List::List_Iterator List::begin()const
+template <typename T>
+auto List<T>::begin()const
 {
-
-    return List_Iterator(*(head->next));
+    return List<T>::List_Iterator(*(head->next));
 }
 
-List::List_Iterator List::end()const
+template <typename T>
+auto List<T>::end()const
 {
     return List_Iterator(*tail);
 }
 
-List::List_Iterator:: List_Iterator( List::Node &arg):memb{&arg} {}
+template <typename T>
+List<T>::List_Iterator:: List_Iterator( List<T>::Node &arg):memb{&arg} {}
 
-List::List_Iterator:: List_Iterator (List_Iterator && arg):memb{arg.memb}
-{
-}
-
-List::List_Iterator::List_Iterator(List_Iterator const& arg): memb{arg.memb}
+template <typename T>
+List<T>::List_Iterator:: List_Iterator (List_Iterator && arg):memb{arg.memb}
 {}
 
-List::List_Iterator& List::List_Iterator::operator++()
+template <typename T>
+List<T>::List_Iterator::List_Iterator(List_Iterator const& arg): memb{arg.memb}
+{}
+
+template <typename T>
+auto& List<T>::List_Iterator::operator++()
 {
-  if( memb -> next != nullptr)
-  {
-   memb = &(*(memb->next) );
-  }
-  return *this;
+    if( memb -> next != nullptr)
+    {
+        memb = &(*(memb->next) );
+    }
+    return *this;
 }
 
-List::List_Iterator List::List_Iterator::operator ++ (int)
+template <typename T>
+auto List<T>::List_Iterator::operator ++ (int)
 {
     List_Iterator temp(*memb);
     ++*this;
     return temp;
 }
 
-List::List_Iterator& List::List_Iterator::operator -- ()
+template <typename T>
+auto& List<T>::List_Iterator::operator -- ()
 {
-  if(memb->prev->prev)
+    if(memb->prev->prev)
     {
-      memb = memb->prev;
+        memb = memb->prev;
     }
-  return *this;
+    return *this;
 }
 
-
-int List::List_Iterator::operator - (List_Iterator const& rhs)const
+template <typename T>
+auto List<T>::List_Iterator::operator - (List_Iterator const& rhs)const
 {
-  return (memb->value - rhs.memb->value);
+    int temp{0};
+    List<T>::List_Iterator temp_it = *this;
+
+    while (temp_it != rhs && temp_it.memb->prev->prev != nullptr)
+    {
+        --temp_it;
+        temp++;
+
+    }
+    if( temp_it == rhs)
+    {
+        return temp;
+    }
+    temp = 0;
+    temp_it = *this;
+    while(temp_it != rhs && temp_it.memb->next->next != nullptr)
+    {
+        ++temp_it;
+        --temp;
+
+    }
+    if( temp_it == rhs)
+    {
+        return temp;
+    }
+    throw std::range_error{"oopsie doopsie"};
+
 }
 
-
-int& List::List_Iterator::operator*()
+template<typename T>
+T& List<T>::List_Iterator::operator*()
 {
     return memb->value;
 }
-
-bool List::List_Iterator:: operator !=(List_Iterator const& rhs)const
+template <typename T>
+bool List<T>::List_Iterator:: operator !=(List_Iterator const& rhs)const
 {
     return memb != rhs.memb;
 }
 
+template <typename T>
+bool List<T>::List_Iterator::operator == (List_Iterator const& rhs)const
+{
+    return (memb == rhs.memb);
+}
